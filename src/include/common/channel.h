@@ -21,6 +21,7 @@ namespace bustub {
 
 /**
  * Channels allow for safe sharing of data between threads. This is a multi-producer multi-consumer channel.
+ * Channels 允许线程间消息之间的安全共享，这是一个多对多的channel
  */
 template <class T>
 class Channel {
@@ -30,8 +31,9 @@ class Channel {
 
   /**
    * @brief Inserts an element into a shared queue.
-   *
+   *插入元素到一个共享队列
    * @param element The element to be inserted.
+   * 这个element参数将被插入
    */
   void Put(T element) {
     std::unique_lock<std::mutex> lk(m_);

@@ -34,11 +34,12 @@ class BufferPoolManager {
  public:
   /**
    * @brief Creates a new BufferPoolManager.
-   * @param pool_size the size of the buffer pool
-   * @param disk_manager the disk manager
+   * @param pool_size 缓冲池大小
+   * @param disk_manager the disk manager 磁盘管理器
    * @param replacer_k the LookBack constant k for the LRU-K replacer
    * @param log_manager the log manager (for testing only: nullptr = disable logging). Please ignore this for P1.
    */
+
   BufferPoolManager(size_t pool_size, DiskManager *disk_manager, size_t replacer_k = LRUK_REPLACER_K,
                     LogManager *log_manager = nullptr);
 
@@ -70,6 +71,7 @@ class BufferPoolManager {
    * @param[out] page_id id of created page
    * @return nullptr if no new pages could be created, otherwise pointer to new page
    */
+
   auto NewPage(page_id_t *page_id) -> Page *;
 
   /**
@@ -180,16 +182,20 @@ class BufferPoolManager {
   std::atomic<page_id_t> next_page_id_ = 0;
 
   /** Array of buffer pool pages. */
+  //缓存池重的物理页
   Page *pages_;
   /** Pointer to the disk sheduler. */
   std::unique_ptr<DiskScheduler> disk_scheduler_ __attribute__((__unused__));
   /** Pointer to the log manager. Please ignore this for P1. */
   LogManager *log_manager_ __attribute__((__unused__));
   /** Page table for keeping track of buffer pool pages. */
+  //物理页到内存页
   std::unordered_map<page_id_t, frame_id_t> page_table_;
   /** Replacer to find unpinned pages for replacement. */
+  //替换器
   std::unique_ptr<LRUKReplacer> replacer_;
   /** List of free frames that don't have any pages on them. */
+  //空闲内存页
   std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   std::mutex latch_;
