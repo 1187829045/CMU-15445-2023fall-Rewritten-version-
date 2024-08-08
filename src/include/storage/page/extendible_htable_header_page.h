@@ -25,11 +25,15 @@
 
 namespace bustub {
 
+//头页数据大小
 static constexpr uint64_t HTABLE_HEADER_PAGE_METADATA_SIZE = sizeof(uint32_t);
+//哈希表头页面能够处理的最大深度
 static constexpr uint64_t HTABLE_HEADER_MAX_DEPTH = 9;
+//定义了哈希表头页面中目录页面 ID 数组的大小
 static constexpr uint64_t HTABLE_HEADER_ARRAY_SIZE = 1 << HTABLE_HEADER_MAX_DEPTH;
 
 class ExtendibleHTableHeaderPage {
+
  public:
   // Delete all constructor / destructor to ensure memory safety
   ExtendibleHTableHeaderPage() = delete;
@@ -85,4 +89,4 @@ static_assert(sizeof(page_id_t) == 4);
 
 static_assert(sizeof(ExtendibleHTableHeaderPage) <= BUSTUB_PAGE_SIZE);
 
-}  // namespace bustub
+}// namespace bustub

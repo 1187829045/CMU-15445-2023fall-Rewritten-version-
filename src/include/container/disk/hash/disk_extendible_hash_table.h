@@ -41,12 +41,12 @@ class DiskExtendibleHashTable {
    * @brief Creates a new DiskExtendibleHashTable.
    *
    * @param name
-   * @param bpm buffer pool manager to be used
-   * @param cmp comparator for keys
-   * @param hash_fn the hash function
-   * @param header_max_depth the max depth allowed for the header page
-   * @param directory_max_depth the max depth allowed for the directory page
-   * @param bucket_max_size the max size allowed for the bucket page array
+   * @param bpm 使用的缓冲池管理器
+   * @param cmp 键比较器
+   * @param hash_fn 哈希函数
+   * @param header_max_depth 允许的标题页的最大深度
+   * @param directory_max_depth 允许的目录页的最大深度
+   * @param bucket_max_size 允许的 bucket 页数组的最大大小
    */
   explicit DiskExtendibleHashTable(const std::string &name, BufferPoolManager *bpm, const KC &cmp,
                                    const HashFunction<K> &hash_fn, uint32_t header_max_depth = HTABLE_HEADER_MAX_DEPTH,
@@ -54,26 +54,26 @@ class DiskExtendibleHashTable {
                                    uint32_t bucket_max_size = HTableBucketArraySize(sizeof(std::pair<K, V>)));
 
   /** TODO(P2): Add implementation
-   * Inserts a key-value pair into the hash table.
-   *
-   * @param key the key to create
-   * @param value the value to be associated with the key
-   * @param transaction the current transaction
-   * @return true if insert succeeded, false otherwise
+* 将键值对插入哈希表。
+*
+* @param key 要创建的键
+* @param value 与键关联的值
+* @param transaction 当前事务
+* @return 如果插入成功则返回 true，否则返回 false
    */
   auto Insert(const K &key, const V &value, Transaction *transaction = nullptr) -> bool;
 
   /** TODO(P2): Add implementation
-   * Removes a key-value pair from the hash table.
-   *
-   * @param key the key to delete
-   * @param value the value to delete
-   * @param transaction the current transaction
-   * @return true if remove succeeded, false otherwise
+* 将键值对插入哈希表。
+*
+* @param key 要创建的键
+* @param value 与键关联的值
+* @param transaction 当前事务
+* @return 如果插入成功则返回 true，否则返回 false
    */
   auto Remove(const K &key, Transaction *transaction = nullptr) -> bool;
 
-  /** TODO(P2): Add implementation
+      /** TODO(P2): Add implementation
    * Get the value associated with a given key in the hash table.
    *
    * Note(fall2023): This semester you will only need to support unique key-value pairs.
@@ -99,6 +99,7 @@ class DiskExtendibleHashTable {
    * Helper function to print out the HashTable.
    */
   void PrintHT() const;
+  auto SplitBucket(ExtendibleHTableDirectoryPage *directory,ExtendibleHTableBucketPage<K, V, KC> *bucket, uint32_t bucket_idx)-> bool;
 
  private:
   /**
@@ -116,7 +117,7 @@ class DiskExtendibleHashTable {
   auto InsertToNewBucket(ExtendibleHTableDirectoryPage *directory, uint32_t bucket_idx, const K &key, const V &value)
       -> bool;
 
-  void UpdateDirectoryMapping(ExtendibleHTableDirectoryPage *directory, uint32_t new_bucket_idx,
+  void  UpdateDirectoryMapping(ExtendibleHTableDirectoryPage *directory, uint32_t new_bucket_idx,
                               page_id_t new_bucket_page_id, uint32_t new_local_depth, uint32_t local_depth_mask);
 
   void MigrateEntries(ExtendibleHTableBucketPage<K, V, KC> *old_bucket,
@@ -124,6 +125,7 @@ class DiskExtendibleHashTable {
                       uint32_t local_depth_mask);
 
   // member variables
+  //哈希表的名称
   std::string index_name_;
   BufferPoolManager *bpm_;
   KC cmp_;

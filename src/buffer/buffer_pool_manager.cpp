@@ -21,7 +21,6 @@ namespace bustub {
 BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager, size_t replacer_k,
                                      LogManager *log_manager)
     : pool_size_(pool_size), disk_scheduler_(std::make_unique<DiskScheduler>(disk_manager)), log_manager_(log_manager) {
-  // TODO(students): remove this line after you have implemented the buffer pool manager
   // we allocate a consecutive memory space for the buffer pool
   pages_ = new Page[pool_size_];
   replacer_ = std::make_unique<LRUKReplacer>(pool_size, replacer_k);
@@ -223,12 +222,29 @@ auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool {
 
 auto BufferPoolManager::AllocatePage() -> page_id_t { return next_page_id_++; }
 
-auto BufferPoolManager::FetchPageBasic(page_id_t page_id) -> BasicPageGuard { return {this, nullptr}; }
+auto BufferPoolManager::FetchPageBasic(page_id_t page_id) -> BasicPageGuard {
+  auto page = FetchPage(page_id);
+  return {this, page};
+}
 
-auto BufferPoolManager::FetchPageRead(page_id_t page_id) -> ReadPageGuard { return {this, nullptr}; }
+auto BufferPoolManager::FetchPageRead(page_id_t page_id) -> ReadPageGuard {
+  auto page = FetchPage(page_id);
+  if (page != nullptr) {
+    page->RLatch();
+  }
+  return {this, page};
+}
 
-auto BufferPoolManager::FetchPageWrite(page_id_t page_id) -> WritePageGuard { return {this, nullptr}; }
+auto BufferPoolManager::FetchPageWrite(page_id_t page_id) -> WritePageGuard {
+  auto page = FetchPage(page_id);
+  if (page != nullptr) {
+    page->WLatch();
+  }
+  return {this, page};
+}
 
-auto BufferPoolManager::NewPageGuarded(page_id_t *page_id) -> BasicPageGuard { return {this, nullptr}; }
-
+auto BufferPoolManager::NewPageGuarded(page_id_t *page_id) -> BasicPageGuard {
+  auto page = NewPage(page_id);
+  return {this, page};
+}
 }  // namespace bustub

@@ -28,7 +28,7 @@
 #include "storage/index/generic_key.h"
 
 namespace bustub {
-
+//哈希目录页数据大小
 static constexpr uint64_t HTABLE_DIRECTORY_PAGE_METADATA_SIZE = sizeof(uint32_t) * 2;
 
 /**
@@ -36,7 +36,9 @@ static constexpr uint64_t HTABLE_DIRECTORY_PAGE_METADATA_SIZE = sizeof(uint32_t)
  * This is 512 because the directory array must grow in powers of 2, and 1024 page_ids leaves zero room for
  * storage of the other member variables.
  */
+ //哈希目录页最大深度
 static constexpr uint64_t HTABLE_DIRECTORY_MAX_DEPTH = 9;
+//哈希目录页数组最大长度
 static constexpr uint64_t HTABLE_DIRECTORY_ARRAY_SIZE = 1 << HTABLE_DIRECTORY_MAX_DEPTH;
 
 /**
@@ -101,7 +103,7 @@ class ExtendibleHTableDirectoryPage {
    *
    * @return mask of global_depth 1's and the rest 0's (with 1's from LSB upwards)
    */
-  auto GetGlobalDepthMask() const -> uint32_t;
+   auto GetGlobalDepthMask() const -> uint32_t;
 
   /**
    * GetLocalDepthMask - same as global depth mask, except it
@@ -117,6 +119,7 @@ class ExtendibleHTableDirectoryPage {
    *
    * @return the global depth of the directory
    */
+
   auto GetGlobalDepth() const -> uint32_t;
 
   auto GetMaxDepth() const -> uint32_t;

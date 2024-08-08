@@ -13,7 +13,7 @@ class BasicPageGuard {
   BasicPageGuard() = default;
 
   BasicPageGuard(BufferPoolManager *bpm, Page *page) : bpm_(bpm), page_(page) {}
-
+//禁止了 BasicPageGuard 类的拷贝构造函数
   BasicPageGuard(const BasicPageGuard &) = delete;
   auto operator=(const BasicPageGuard &) -> BasicPageGuard & = delete;
 
@@ -106,7 +106,7 @@ class BasicPageGuard {
   friend class ReadPageGuard;
   friend class WritePageGuard;
 
-  [[maybe_unused]] BufferPoolManager *bpm_{nullptr};
+  BufferPoolManager *bpm_{nullptr};
   Page *page_{nullptr};
   bool is_dirty_{false};
 };
