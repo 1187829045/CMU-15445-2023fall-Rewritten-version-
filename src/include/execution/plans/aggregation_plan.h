@@ -114,7 +114,7 @@ struct AggregateKey {
 
 /** AggregateValue represents a value for each of the running aggregates */
 struct AggregateValue {
-  /** The aggregate values */
+  /** 聚合值 */
   std::vector<Value> aggregates_;
 };
 

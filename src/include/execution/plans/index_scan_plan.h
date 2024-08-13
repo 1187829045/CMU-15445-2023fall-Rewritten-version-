@@ -55,10 +55,11 @@ class IndexScanPlanNode : public AbstractPlanNode {
   /** The index whose tuples should be scanned. */
   index_oid_t index_oid_;
 
-  /** The predicate to filter in index scan.
-   * For Fall 2023, after you implemented seqscan to indexscan optimizer rule,
-   * we can use this predicate to do index point lookup
+  /** 用于索引扫描中进行过滤的谓词。
+ * 对于 2023 年秋季，在你实现了从顺序扫描 (seqscan) 到索引扫描 (indexscan) 的优化规则后，
+ * 我们可以使用这个谓词来进行索引点查找。
    */
+
   AbstractExpressionRef filter_predicate_;
 
   /**

@@ -16,11 +16,12 @@
 #include "storage/table/tuple.h"
 
 namespace bustub {
+
 class ExecutorContext;
 /**
- * The AbstractExecutor implements the Volcano tuple-at-a-time iterator model.
- * This is the base class from which all executors in the BustTub execution
- * engine inherit, and defines the minimal interface that all executors support.
+ * AbstractExecutor 实现了火山模型 (Volcano Model) 的逐元组迭代器模式。
+ * 这是 BustTub 执行引擎中所有执行器 (executor) 继承的基类，并定义了所有执行器支持的最小接口。
+
  */
 class AbstractExecutor {
  public:

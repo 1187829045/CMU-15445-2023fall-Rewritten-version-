@@ -37,15 +37,20 @@ DiskExtendibleHashTable<K, V, KC>::DiskExtendibleHashTable(const std::string &na
       header_max_depth_(header_max_depth),
       directory_max_depth_(directory_max_depth),
       bucket_max_size_(bucket_max_size) {
-  // std::cout << header_max_depth << directory_max_depth << bucket_max_size << "\n";
+  std::cout<<"------------------------this is DiskExtendibleHashTable"<<std::endl;
+  std::cout << header_max_depth << directory_max_depth << bucket_max_size << "\n";
   index_name_ = name;
   // Create a new header page
   page_id_t page_id;
   auto tmp_header_guard = bpm_->NewPageGuarded(&page_id);
+  std::cout<<"------------------------this is DiskExtendibleHashTable over1"<<" "<<page_id<<std::endl;
   auto header_guard = tmp_header_guard.UpgradeWrite();
+  std::cout<<"------------------------this is DiskExtendibleHashTable over2"<<std::endl;
   auto header_page = header_guard.AsMut<ExtendibleHTableHeaderPage>();
+  std::cout<<"------------------------this is DiskExtendibleHashTable over3"<<std::endl;
   header_page->Init(header_max_depth);
   header_page_id_ = page_id;
+  std::cout<<"------------------------this is DiskExtendibleHashTable over"<<std::endl;
 }
 
 /*****************************************************************************
@@ -96,6 +101,7 @@ auto DiskExtendibleHashTable<K, V, KC>::GetValue(const K &key, std::vector<V> *r
 
 template <typename K, typename V, typename KC>
 auto DiskExtendibleHashTable<K, V, KC>::Insert(const K &key, const V &value, Transaction *transaction) -> bool {
+  std::cout<<"this is Inser"<<std::endl;
   std::vector<V> valuesFound;
   bool keyExists = GetValue(key, &valuesFound, transaction);
   if (keyExists) {

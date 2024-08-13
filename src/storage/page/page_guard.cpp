@@ -1,10 +1,8 @@
 #include "storage/page/page_guard.h"
 #include "buffer/buffer_pool_manager.h"
-
+#include "common/logger.h"
 namespace bustub {
-//移动构造函数
-// noexcept表示该函数不会抛出异常
-// 新的守卫对象的行为与原来的守卫对象完全相同
+
 BasicPageGuard::BasicPageGuard(BasicPageGuard &&that) noexcept {
   bpm_ = that.bpm_;
   page_ = that.page_;
@@ -12,6 +10,7 @@ BasicPageGuard::BasicPageGuard(BasicPageGuard &&that) noexcept {
   that.bpm_ = nullptr;
   this->is_dirty_ = that.is_dirty_;
 }
+
 
 void BasicPageGuard::Drop() {
   if (bpm_ != nullptr && page_ != nullptr) {
@@ -32,7 +31,6 @@ auto BasicPageGuard::operator=(BasicPageGuard &&that) noexcept -> BasicPageGuard
   this->is_dirty_ = that.is_dirty_;
   return *this;
 }
-
 BasicPageGuard::~BasicPageGuard(){
   Drop();
 };  // NOLINT
@@ -57,7 +55,8 @@ auto BasicPageGuard::UpgradeWrite() -> WritePageGuard {
   return write_page_guard;
 }
 
-ReadPageGuard::ReadPageGuard(BufferPoolManager *bpm, Page *page) {}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept {
   guard_ = std::move(that.guard_);
@@ -76,12 +75,9 @@ void ReadPageGuard::Drop() {
   guard_.Drop();
 }
 
-ReadPageGuard::~ReadPageGuard() {
-  Drop();
-}  // NOLINT
-
-WritePageGuard::WritePageGuard(BufferPoolManager *bpm, Page *page) {}
-
+ReadPageGuard::~ReadPageGuard() { this->Drop(); }  // NOLINT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept {
   guard_ = std::move(that.guard_);
 }
@@ -99,9 +95,6 @@ void WritePageGuard::Drop() {
   guard_.is_dirty_ = true;
   guard_.Drop();
 }
-
-WritePageGuard::~WritePageGuard() {
-  Drop();
-}  // NOLINT
+WritePageGuard::~WritePageGuard() { this->Drop(); }  // NOLINT
 
 }  // namespace bustub

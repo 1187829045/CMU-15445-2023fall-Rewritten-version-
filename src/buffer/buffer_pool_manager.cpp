@@ -35,45 +35,36 @@ BufferPoolManager::~BufferPoolManager() { delete[] pages_; }
 //找到一个空闲的frame，新分配一个物理页，并将该物理页的内容读取到刚找到的这个frame中
 // 在缓冲池中创建一个新页面
 auto BufferPoolManager::NewPage(page_id_t *page_id) -> Page * {
-  Page *page;
-  frame_id_t frame_id = -1;
-  std::lock_guard lock(latch_);
-  // 如果free_list_里有值
+  std::scoped_lock<std::mutex> lock(latch_);
+  frame_id_t replacement_frame_id;
   if (!free_list_.empty()) {
-    // 获取free_list_容器的最后一个元素并移除，并让page为新内存地址
-    frame_id = free_list_.back();
-    free_list_.pop_back();
+    replacement_frame_id = free_list_.front();
+    free_list_.pop_front();
   } else {
-    // free_list_里没值，看replacer_里有没有能替换的
-    if (!replacer_->Evict(&frame_id)) {
+    if (!replacer_->Evict(&replacement_frame_id)) {
+      page_id = nullptr;
       return nullptr;
     }
+    auto &helper = pages_[replacement_frame_id];
+    if (helper.IsDirty()) {
+      auto promise = disk_scheduler_->CreatePromise();
+      auto future = promise.get_future();
+      disk_scheduler_->Schedule({true, helper.GetData(), helper.page_id_, std::move(promise)});
+      future.get();
+    }
+    page_table_.erase(helper.page_id_);
   }
-  page = pages_ + frame_id;
-  // 和flushpage方法一样，如果page地址上原frame里存放的从内存中拿出的page_id对应的页是脏的
-  if (page->IsDirty()) {
-    auto promise = disk_scheduler_->CreatePromise();
-    auto future = promise.get_future();
-    disk_scheduler_->Schedule({true, page->GetData(), page->GetPageId(), std::move(promise)});
-    future.get();
-    // ! clean
-    page->is_dirty_ = false;
-  }
-  // 获取一个新的页面ID(注释里给的)
-  *page_id = AllocatePage();
-  // 把旧的映射删掉
-  page_table_.erase(page->GetPageId());
-  // 建立新的映射
-  page_table_.emplace(*page_id, frame_id);
-  // 把新page的参数更新下
-  page->page_id_ = *page_id;
-  page->pin_count_ = 1;
-  // ResetMemory方法：将页面中的所有数据清零
-  page->ResetMemory();
-  // 更新replacer_
-  replacer_->RecordAccess(frame_id);
-  replacer_->SetEvictable(frame_id, false);
-  return page;
+  auto new_page_id = AllocatePage();
+  *page_id = new_page_id;
+  pages_[replacement_frame_id].ResetMemory();
+  pages_[replacement_frame_id].pin_count_ = 0;
+  pages_[replacement_frame_id].is_dirty_ = false;
+  page_table_.insert(std::make_pair(new_page_id, replacement_frame_id));
+  replacer_->SetEvictable(replacement_frame_id, false);
+  replacer_->RecordAccess(replacement_frame_id);
+  pages_[replacement_frame_id].pin_count_++;
+  pages_[replacement_frame_id].page_id_ = new_page_id;
+  return &pages_[replacement_frame_id];
 }
 //给定物理页id，获取该物理页所对应的物理页
 auto BufferPoolManager::FetchPage(page_id_t page_id, [[maybe_unused]] AccessType access_type) -> Page * {
@@ -236,15 +227,15 @@ auto BufferPoolManager::FetchPageRead(page_id_t page_id) -> ReadPageGuard {
 }
 
 auto BufferPoolManager::FetchPageWrite(page_id_t page_id) -> WritePageGuard {
-  auto page = FetchPage(page_id);
-  if (page != nullptr) {
-    page->WLatch();
-  }
-  return {this, page};
+  auto pg_ptr = FetchPage(page_id);
+  pg_ptr->WLatch();
+  assert(pg_ptr != nullptr);
+  return {this, pg_ptr};
 }
 
 auto BufferPoolManager::NewPageGuarded(page_id_t *page_id) -> BasicPageGuard {
-  auto page = NewPage(page_id);
-  return {this, page};
+  auto pg_ptr = NewPage(page_id);
+  assert(pg_ptr != nullptr);
+  return {this, pg_ptr};
 }
 }  // namespace bustub

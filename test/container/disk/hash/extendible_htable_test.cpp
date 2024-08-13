@@ -24,16 +24,21 @@ namespace bustub {
 
 // NOLINTNEXTLINE
 TEST(ExtendibleHTableTest,InsertTest1) {
+  std::cout<<"start Test1"<<std::endl;
   auto disk_mgr = std::make_unique<DiskManagerUnlimitedMemory>();
   auto bpm = std::make_unique<BufferPoolManager>(50, disk_mgr.get());
-
+  std::cout<<"111111111111111111111111111111111111111111111111111"<<std::endl;
   DiskExtendibleHashTable<int, int, IntComparator> ht("blah", bpm.get(), IntComparator(), HashFunction<int>(), 0, 2, 2);
 
   int num_keys = 8;
 
   // insert some values
+  std::cout<<"22222222222222222222222222222222222222222222222222222"<<std::endl;
   for (int i = 0; i < num_keys; i++) {
+    //std::cout<<"2222222222222222222222------------------------------------------------------------------------------------------"<<std::endl;
+
     bool inserted = ht.Insert(i, i);
+    //std::cout<<"-----------------------------------------------------------------------------------------"<<std::endl;
     ASSERT_TRUE(inserted);
     std::vector<int> res;
     ht.GetValue(i, &res);
@@ -45,6 +50,7 @@ TEST(ExtendibleHTableTest,InsertTest1) {
 
   // attempt another insert, this should fail because table is full
   ASSERT_FALSE(ht.Insert(num_keys, num_keys));
+  std::cout<<"over Test1"<<std::endl;
 }
 
 // NOLINTNEXTLINE
